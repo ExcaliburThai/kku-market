@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {postInput,allowedGoogleUser,emailMessage} from './validation.js';
+const valid={title:' หนังสือ ',description:'สภาพดี',price:'120.50'};
+test('multipart numeric price and trimming',()=>assert.deepEqual(postInput(valid),{title:'หนังสือ',description:'สภาพดี',price:120.5}));
+test('invalid prices rejected',()=>{for(const price of ['',-1,NaN,Infinity,'1e2','abc','1.001','999999999'])assert.throws(()=>postInput({...valid,price}));});
+test('empty or oversized fields rejected',()=>{assert.throws(()=>postInput({...valid,title:' '}));assert.throws(()=>postInput({...valid,description:'a'.repeat(5001)}));});
+const u={email:'someone@gmail.com',email_verified:true,firebase:{sign_in_provider:'google.com'}};
+test('only verified Google accounts',()=>{assert.equal(allowedGoogleUser(u),true);assert.equal(allowedGoogleUser({...u,email_verified:false}),false);assert.equal(allowedGoogleUser({...u,firebase:{sign_in_provider:'password'}}),false);});
+test('exact domain allowlist prevents suffix spoofing',()=>{assert.equal(allowedGoogleUser(u,['gmail.com']),true);assert.equal(allowedGoogleUser({...u,email:'x@evilgmail.com'},['gmail.com']),false);});
+test('receipt contains code and is not an authentication token',()=>{const text=emailMessage('KKU-TEST','หนังสือ','create');assert.ok(text.includes('KKU-TEST'));assert.ok(text.includes('ไม่ใช่รหัสผ่านหรือ OTP'));});

@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: kku-market-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DB_SSL
+        value: "true"
+      - key: DB_NAME
+        value: kku_market
+      - key: DB_PORT
+        value: "4000"
+      - key: GOOGLE_CLOUD_PROJECT
+        value: kku-market-81b8d
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/service-account.json
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
