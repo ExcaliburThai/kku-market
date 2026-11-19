@@ -26,7 +26,7 @@ const wrap=fn=>(req,res,next)=>Promise.resolve(fn(req,res,next)).catch(next);
 const fault=(status,message)=>Object.assign(new Error(message),{status});
 const auth=wrap(async(req,res,next)=>{
  const h=req.headers.authorization||'';if(!h.startsWith('Bearer '))throw fault(401,'กรุณาเข้าสู่ระบบ');
- let u;try{u=await getAuth().verifyIdToken(h.slice(7),true);}catch(e){console.error('Firebase Auth:',e.code);throw fault(401,'เข้าสู่ระบบไม่สำเร็จ กรุณาออกจากระบบแล้วลองใหม่');}
+ let u;try{u=await getAuth().verifyIdToken(h.slice(7),true);}catch(e){console.error('Firebase Auth:', e.code, e.message);throw fault(401,'เข้าสู่ระบบไม่สำเร็จ กรุณาออกจากระบบแล้วลองใหม่');}
  const domains=(process.env.ALLOWED_EMAIL_DOMAINS||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
  if(!allowedGoogleUser(u,domains))throw fault(403,'บัญชี Google นี้ไม่ได้รับอนุญาต');
  await pool.execute('INSERT INTO users(firebase_uid,name,email) VALUES(?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name),email=VALUES(email)',[u.uid,u.name||'สมาชิก',u.email]);req.user=u;next();
